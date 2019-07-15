@@ -28,6 +28,9 @@ router.post("/burgers/create", function(req,res){
 			});
 });
 
+
+
+// Devour a Burger
 router.put("/burgers/update/:id", function(req,res){
 	var condition = "id = " + req.params.id;
 	console.log("condition", condition);
