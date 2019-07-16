@@ -18,7 +18,7 @@
 	 		  	<p class="lead">{{this.burger_name}}</p>
 	 		  	<span class="input-group-btn">
 
-	 		  		<form action="burgers/update/{{this.id}}" method="PUT">
+	 		  		<form class="devour-form" data-id={{this.id}}>
 	 		  			<input type="hidden" name="devoured" value="true">
 	 		  			<button class="btn btn-default btn-lg" type="submit">Devour it!</button>
 	 		  		</form>
@@ -63,3 +63,15 @@
 
  </div>
 </div>
+
+<script>
+	$("devour-form").on("submit", function(event) {
+		event.preventDefault();
+		var burgerId = $(this).data("id");
+
+		// make your ajax request
+		// url="burgers/update/burgerId"
+		// method="PUT"
+	})
+
+</script>
