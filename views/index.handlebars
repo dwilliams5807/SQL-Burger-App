@@ -1,77 +1,72 @@
 <div class="container">
-	<div class="jumbotron">
-		
-		<h1>Burgers!</h1>
-	</div>
-	
+  <!--Jumbotron-->
+  <div class="jumbotron text-center bg-primary text-white">
+    <h1 class="display-4" id="app-title">Awesome Burger <img src="/assets/img/cheeseburger.png"></h1>
+    <p class="lead">Welcome to Awesome Burger. Home of the Awesome Burger.</p>
+  </div>
 
-	<div class="row">
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card border border-primary">
+        <div class="card-header bg-primary text-white">
+         Can I take your order?
+        </div>
+        <!--Create/add burger form-->
+        <div class="card-body">
+          <form class="create-form">
+            <div class="form-group">
+              <label for="burger">Place order here:</label>
+              <input type="text" class="form-control" id="burgerToGo" placeholder="">
+            </div>
+            <button class="btn btn-primary" type="submit">Place order</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
 
-	<div class="col-md-4 col-md-offset-1">
-	 <div class="panel-panel default">
-	 	<h1>Ready to Eat</h1>
-	 	<ul class="list-group">
-	 		{{#each burgers}}
-	 		 {{#unless this.devoured}}
-	 		 <li class="list-group-item">
-	 		  <div class="input-group">
-	 		  	<p class="lead">{{this.burger_name}}</p>
-	 		  	<span class="input-group-btn">
 
-	 		  		<form class="devour-form" data-id={{this.id}}>
-	 		  			<input type="hidden" name="devoured" value="true">
-	 		  			<button class="btn btn-default btn-lg" type="submit">Devour it!</button>
-	 		  		</form>
-	 		  	</span>
-	 		  </div>
-	 		 </li>
-	 		 {{/unless}}
-	 		{{/each}}
-	 	</ul>
+  <div class="row mt-4">
+    <div class="col-md-6 mt-4">
+      <div class="card border border-primary">
+        <div class="card-header bg-primary text-white">
+         Burgers
+        </div>
+        <!--Div to hold burgers that have not been devoured yet-->
+        <div class="card-body">
+              {{#each burgers}}
+                {{#unless devoured}}
+                  {{> burgers/burger-block devour=false}}
+                {{/unless}}
+              {{/each}}
+        </div>
+      </div>
+    </div>
 
-	 </div>
-	</div>
+    <div class="col-md-6 mt-4">
+      <div class="card devoured-card">
+        <div class="card-header text-white" id="devoured-card-header">
+         Devoured burgers
+        </div>
+        <!--When a burger has been devoured, put burger here-->
+        <div class="card-body">
+          {{#each burgers}}
+              {{#if devoured}}
+                {{> burgers/burger-devoured devour=true}}
+              {{/if}}
+          {{/each}}
+        </div>
+      </div>
+    </div>
+  </div>
 
-	
-	<div class="row">
-		<div class="col-md-4 col-md-offset-2">
-			<h1>Previously Eaten</h1>
-			<div class="panel panel-default">
-				<ul class="list-group">
-					{{#each burgers}}
-					 {{#if this.devoured}}
-					 <li class="list-group-item">
-					 	<p class="lead">{{this.burger_name}}</p>
-					 </li>
-					 {{/if}}
-					  {{/each}}
-				</ul>
-			</div>
-		</div>
-	</div>
-
-	<div class="col-md-10 col-md-offset-1">
-		<p class="lead">add burger & click submit</p>
-		
-		<form class="create-update-form" action="burgers/create" method="POST">
-		 <div class="form-group">
-		 	<textarea class="form-control input-lg" type="text" name="burger_name" row="3"></textarea>
-		 </div>
-		 <button class="btn btn-default btn-lg" type="submit">Submit</button>
-		</form>
-	</div>
-
- </div>
+  <!--Footer-->
+  <div class="row mt-5">
+    <div class="col-md-12">
+      <div class="card footer">
+        <div class="card-body footer-body text-white">
+          <h5 class="card-title text-white">Awesome Burger</h5>
+        </div>
+      </div>
+    </div>
 </div>
-
-<script>
-	$("devour-form").on("submit", function(event) {
-		event.preventDefault();
-		var burgerId = $(this).data("id");
-
-		// make your ajax request
-		// url="burgers/update/burgerId"
-		// method="PUT"
-	})
-
-</script>

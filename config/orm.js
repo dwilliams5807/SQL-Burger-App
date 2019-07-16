@@ -1,99 +1,118 @@
-var connection = require('./connection.js');
+//Need to require connection.js so that the ORM can communicate/talk with the database.
+var connection = require("./connection.js");
 
-
-
-
-// Connect to MySQL database
-connection.connect(function(err) {
-  if (err) {
-    console.error('error connecting: ' + err.stack);
-    return;
-  };
-  console.log('connected as id ' + connection.threadId);
-});
-
-
-
-
-// Methods for MySQL commands
-var orm = {
-
-  // selectAll()
-  selectAll: function(callback) {
-
-    // Run MySQL Query
-    connection.query('SELECT * FROM burgers', function (err, result) {
-      if (err) throw err;
-      callback(result);
-    });
-
-  },
-
-  // insertOne()
-  insertOne: function(burger_name, callback){
-
-    // Create a new timestamp
-    // ----------------------------------------------------------
-    var d = new Date();
-    var timestamp = ''+ d.getFullYear() + '-'; // must be string
-    var month = '' + (d.getMonth() + 1); // must be string
-      // handle 1 digit months
-      if(month.length == 1){
-        month = '0' + month;
-      }
-    timestamp += month + '-';
-    var day = '' + d.getDate(); // must be string
-      // handle 1 digit day of month
-      if(day.length == 1){
-        day = '0' + day;
-      }
-    timestamp += day + ' ';
-    var hour = '' + d.getHours(); // must be string
-      // handle 1 digit hour
-      if(hour.length == 1){
-        hour = '0' + hour;
-      }
-    timestamp += hour + ':';
-    var minute = '' + d.getMinutes(); // must be string
-      // handle 1 digit minute
-      if(minute.length == 1){
-        minute = '0' + minute;
-      }
-    timestamp += minute + ':';
-    var second = '' + d.getSeconds(); // must be string
-      // handle 1 digit second
-      if(second.length == 1){
-        second = '0' + second;
-      }
-    timestamp += second;
-    // ----------------------------------------------------------
-
-    // Run MySQL Query
-    connection.query('INSERT INTO burgers SET ?', {
-      burger_name: burger_name,
-      devoured: false,
-      date: timestamp
-    }, function (err, result) {
-      if (err) throw err;
-      callback(result);
-    });
-
-  },
-
-  // updateOne()
-  updateOne: function(burgerID, callback){
-
-    // Run MySQL Query
-    connection.query('UPDATE burgers SET ? WHERE ?', [{devoured: true}, {id: burgerID}], function (err, result) {
-        if (err) throw err;
-        callback(result);
-      });
-
+// Helper function for SQL syntax.
+// Let's say we want to pass 3 values into the mySQL query.
+// In order to write the query, we need 3 question marks.
+// The above helper function loops through and creates an array of question marks - ["?", "?", "?"] - and turns it into a string.
+// ["?", "?", "?"].toString() => "?,?,?";
+function printQuestionMarks(num) {
+    var arr = [];
+  
+    for (var i = 0; i < num; i++) {
+      arr.push("?");
+    }
+  
+    return arr.toString();
   }
+  
+  // Helper function to convert object key/value pairs to SQL syntax
+  function objToSql(ob) {
+    var arr = [];
+  
+    // loop through the keys and push the key/value as a string int arr
+    for (var key in ob) {
+      var value = ob[key];
+      // check to skip hidden properties
+      if (Object.hasOwnProperty.call(ob, key)) {
+        // if string with spaces, add quotations (Lana Del Grey => 'Lana Del Grey')
+        if (typeof value === "string" && value.indexOf(" ") >= 0) {
+          value = "'" + value + "'";
+        }
+        // e.g. {name: 'Lana Del Grey'} => ["name='Lana Del Grey'"]
+        // e.g. {sleepy: true} => ["sleepy=true"]
+        arr.push(key + "=" + value);
+      }
+    }
+  
+    // translate array of strings to a single comma-separated string
+    return arr.toString();
+  }
+  
 
-};
+//Object for all our SQL statement functions.
+//Create the methods that will execute the necessary MySQL commands in the controllers.
+//These are the methods you will need to use in order to retrieve and store data in your database.
+var orm = {
+    //Select all function/query
+    all: function(tableInput, cb) {
+      var queryString = "SELECT * FROM " + tableInput + ";";
+      connection.query(queryString, function(err, result) {
+        if (err) {
+          throw err;
+        }
+        cb(result);
+      });
+    },
 
+    //Create function/query
+    create: function(table, cols, vals, cb) {
+      var queryString = "INSERT INTO " + table;
+  
+      queryString += " (";
+      queryString += cols.toString();
+      queryString += ") ";
+      queryString += "VALUES (";
+      queryString += printQuestionMarks(vals.length);
+      queryString += ") ";
+  
+      console.log(queryString);
+  
+      connection.query(queryString, vals, function(err, result) {
+        if (err) {
+          throw err;
+        }
+  
+        cb(result);
+      });
+    },
 
+    //Update function/query.
+    // An example of objColVals would be {name: panther, sleepy: true}
+    update: function(table, objColVals, condition, cb) {
+      var queryString = "UPDATE " + table;
+  
+      queryString += " SET ";
+      queryString += objToSql(objColVals);
+      queryString += " WHERE ";
+      queryString += condition;
+  
+      console.log(queryString);
+      connection.query(queryString, function(err, result) {
+        if (err) {
+          throw err;
+        }
+  
+        cb(result);
+      });
+    },
 
-// Export the ORM object in module.exports.
+    //Delete function/query
+    delete: function(table, condition, cb) {
+      var queryString = "DELETE FROM " + table;
+      queryString += " WHERE ";
+      queryString += condition;
+  
+      connection.query(queryString, function(err, result) {
+        if (err) {
+          throw err;
+        }
+  
+        cb(result);
+      });
+    }
+  
+  };
+
+//Export the orm object.
 module.exports = orm;
