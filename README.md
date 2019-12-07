@@ -8,5 +8,5 @@ A rough outline for an online ordering app.
 ## Tech Used
 * JQuery
 * MySql
-* Hanldebars 
+* Handlebars 
 * CSS
